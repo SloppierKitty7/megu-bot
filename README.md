@@ -1,4 +1,4 @@
-# megmegu-bot
+# Megu-bot
 Is an open source utility bot for discord
 
 # Requirements
