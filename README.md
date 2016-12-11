@@ -4,7 +4,7 @@ Is an open source utility bot for discord
 # Requirements
 
 - Nodejs 6
-- image magic.
+- Rethinkdb
 
 # Contributing
 
