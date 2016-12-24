@@ -9,7 +9,8 @@
 	},
 	"commandSets": {
 		"!": {"dir": "commands/normal/"},
-		"}": {"dir": "commands/mod/", "color": "blue"}
+		"}": {"dir": "commands/owner/", "color": "blue"},
+		"$": {"dir": "commands/mod/", "color": "green"}
 	},
 	"reloadCommand": "~$reload",
 	"evalCommand": "~$eval",

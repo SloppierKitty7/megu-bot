@@ -63,157 +63,12 @@ function updateNSFWSetting(bot, msg, suffix, settingsManager) {
 			.catch(e => { bot.createMessage(msg.channel.id, e) });
 	}
 }
-
-function addIgnores(bot, msg, suffix, settingsManager) {
-	let args = suffix.match(/\((.+)\) *\((.+)\)/);
-	if (args === null || args.length !== 3)
-		args = suffix.match(/([^ ]+) +(.+)/);
-	if (args === null || args.length !== 3)
-		return bot.createMessage(msg.channel.id, "Please format your message like this: `ignore (@user | server | #channel) (]command | >all | }command)`");
-	let commands = args[2].split(/ *\| */).filter(x => x !== ''),
-		scopes = args[1].split(/ *\| */).filter(x => x !== ''); // Remove empty entries from the array
-	if (commands.length === 0 || scopes.length === 0)
-		return bot.createMessage(msg.channel.id, "Please format your message like this: `ignore (@user | server | #channel) (]command | >all | }command)`");
-
-	scopes.forEach(scope => {
-		let task,
-			args;
-
-		if (scope === 'server') {
-			task = settingsManager.addIgnoreForGuild;
-			args = [msg.channel.guild.id];
-
-		} else if (/<@!?[0-9]+>/.test(scope)) { // If adjusting for a user
-			let id = scope.match(/[0-9]+/)[0];
-			if (msg.channel.guild.members.has(id)) {
-				task = settingsManager.addIgnoreForUserOrChannel;
-				args = [msg.channel.guild.id, 'userIgnores', id];
-			} else
-				return bot.createMessage(msg.channel.id, "Invalid user: " + scope);
-
-		} else if (/<#[0-9]+>/.test(scope)) { // If adjusting for a channel
-			let id = scope.match(/[0-9]+/)[0],
-				channel = msg.channel.guild.channels.get(id);
-			if (channel === null || channel.type === 'voice')
-				return bot.createMessage(msg.channel.id, "Invalid text channel: " + scope);
-			task = settingsManager.addIgnoreForUserOrChannel;
-			args = [msg.channel.guild.id, 'channelIgnores', id];
-		} else
-			return bot.createMessage(msg.channel.id, `Invalid scope "${scope}"`);
-
-		ignoreLoop(task, args, commands.slice()) // commands must be passed as a copy, NOT AS A REFERENCE
-			.then(modified => {
-				if (modified.length !== 0)
-					bot.createMessage(msg.channel.id, `**Added the following ignores for ${scope}:**\n${modified.join(', ')}`);
-				else
-					bot.createMessage(msg.channel.id, `**No settings modified for ${scope}**`);
-			})
-			.catch(error => {
-				bot.createMessage(msg.channel.id, `**Error adding ignores for ${scope}:**\n\t${error}`);
-			});
-	});
-}
-
-function removeIgnores(bot, msg, suffix, settingsManager) {
-	let args = suffix.match(/\((.+)\) *\((.+)\)/);
-	if (args === null || args.length !== 3)
-		args = suffix.match(/([^ ]+) +(.+)/);
-	if (args === null || args.length !== 3)
-		return bot.createMessage(msg.channel.id, "Please format you message like this: `unignore (@user | server | #channel) (]command | ]all | }command)`");
-	let commands = args[2].split(/ *\| */).filter(x => x !== ''),
-		scopes = args[1].split(/ *\| */).filter(x => x !== '');
-	if (commands.length === 0 || scopes.length === 0)
-		return bot.createMessage(msg.channel.id, "Please format you message like this: `unignore (@user | server | #channel) (]command | ]all | }command)`");
-
-	scopes.forEach(scope => {
-		let task,
-			args;
-
-		if (scope === 'server') {
-			task = settingsManager.removeIgnoreForGuild;
-			args = [msg.channel.guild.id];
-
-		} else if (/<@!?[0-9]+>/.test(scope)) {
-			let id = scope.match(/[0-9]+/)[0];
-			if (msg.channel.guild.members.has(id)) {
-				task = settingsManager.removeIgnoreForUserOrChannel;
-				args = [msg.channel.guild.id, 'userIgnores', id];
-			} else
-				return bot.createMessage(msg.channel.id, "Invalid user: " + scope);
-
-		} else if (/<#[0-9]+>/.test(scope)) {
-			let id = scope.match(/[0-9]+/)[0],
-				channel = msg.channel.guild.channels.get(id);
-			if (channel === null || channel.type === 'voice')
-				return bot.createMessage(msg.channel.id, "Invalid text channel: " + scope);
-			task = settingsManager.removeIgnoreForUserOrChannel;
-			args = [msg.channel.guild.id, 'channelIgnores', id];
-		} else
-			return bot.createMessage(msg.channel.id, `Invalid scope "${scope}"`);
-
-		ignoreLoop(task, args, commands.slice())
-			.then(modified => {
-				if (modified.length !== 0)
-					bot.createMessage(msg.channel.id, `**Removed the following ignores for ${scope}:**\n${modified.join(', ')}`);
-				else
-					bot.createMessage(msg.channel.id, `**No settings modified for ${scope}**`);
-			})
-			.catch(error => {
-				bot.createMessage(msg.channel.id, `**Error removing ignores for ${scope}:**\n\t${error}`);
-			});
-	});
-}
-
-function ignoreLoop(task, args, commands) {
-	return new Promise((resolve, reject) => {
-		let modified = [];
-		task(...args, commands[0])
-			.then(b => {
-				if (b === true)
-					modified.push(commands[0]);
-				commands.shift();
-				if (commands.length > 0) {
-					ignoreLoop(task, args, commands)
-						.then(m => {
-							modified.push(m);
-							return resolve(modified);
-						})
-						.catch(reject);
-				} else
-					return resolve(modified);
-			})
-			.catch(reject);
-	});
-}
-
-function checkIgnores(bot, msg, suffix, settingsManager) {
-	if (suffix) {
-		let ignored;
-		if (suffix === 'server')
-			ignored = settingsManager.checkIgnoresFor(msg.channel.guild.id, 'guild');
-		else if (msg.channelMentions.length !== 0)
-			ignored = settingsManager.checkIgnoresFor(msg.channel.guild.id, 'channel', msg.channelMentions[0]);
-		else if (msg.mentions.length !== 0)
-			ignored = settingsManager.checkIgnoresFor(msg.channel.guild.id, 'user', msg.mentions[0].id);
-		else
-			return bot.createMessage(msg.channel.id, 'Please specify "server", a channel, or a user');
-
-		if (ignored.length === 0)
-			bot.createMessage(msg.channel.id, 'Nothing ignored');
-		else
-			bot.createMessage(msg.channel.id, '**Ignored:**\n' + ignored.join(', '));
-	} else
-		bot.createMessage(msg.channel.id, '');
-}
-
 module.exports = {
 	desc: "Adjust a server's settings.",
 	help: `Modify how the bot works on a server.
 	__welcome__: Set the channel and message to be displayed to new members \`welcome #general Welcome \${USER} to \${SERVER}\`.
 	__events__: Modify event subscriptions \`events #event-log +memberjoined +userbanned -namechanged\`.
-	__nsfw__: Allow NSFW commands to be used in the channel \`nsfw allow\` \`nsfw deny\`.
-	__ignore__: Block commands \`ignore #no-bot >all\`.
-	__unignore__: Allow commands \`unignore @User >ping | >choose\`.`,
+	__nsfw__: Allow NSFW commands to be used in the channel \`nsfw allow\` \`nsfw deny\`.`,
 	usage: "Usage at https://github.com/SloppierKitty7/megu-bot/wiki/Settings",
 	aliases: ['set', 'config'],
 	cooldown: 3,
@@ -227,8 +82,6 @@ module.exports = {
 				handleEventsChange(bot, msg, suffix.substr(6).trim(), settingsManager);
 			else if (suffix.toLowerCase().startsWith('nsfw'))
 				updateNSFWSetting(bot, msg, suffix.substr(5).trim().toLowerCase(), settingsManager);
-			else if (suffix.startsWith('ignored') || suffix.startsWith('check ignores') || suffix.startsWith('check ignored'))
-				checkIgnores(bot, msg, suffix.substr(13).trim().toLowerCase(), settingsManager);
 			else if (suffix.startsWith('ignore'))
 				addIgnores(bot, msg, suffix.substr(7).trim().toLowerCase(), settingsManager);
 			else if (suffix.startsWith('unignore'))

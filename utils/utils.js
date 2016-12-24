@@ -167,18 +167,3 @@ exports.formatTime = function(milliseconds) {
 	let days = s.toFixed(0);
 	return `${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds`;
 }
-
-/** Check for a newer version of MiraiBot */
-exports.checkForUpdates = function() {
-	let version = ~~(require('../package.json').version.split('.').join('')); //This is used to convert it to a number that can be compared
-	superagent.get("https://raw.githubusercontent.com/brussell98/Mirai/master/package.json")
-		.end((error, response) => {
-			if (error)
-				logger.warn('Error checking for updates: ' + (error.status || error.response));
-			else {
-				let latest = ~~(JSON.parse(response.text).version.split('.').join(''));
-				if (latest > version)
-					logger.warn('A new version of MiraiBot is avalible', 'OUT OF DATE');
-			}
-		});
-}

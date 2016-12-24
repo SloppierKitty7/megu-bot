@@ -6,7 +6,7 @@ var Nf = new Intl.NumberFormat('en-US'),
 module.exports = function(bot, config, games, utils) {
 	if (logger === undefined)
 		logger = new _Logger(config.logTimestamp);
-	utils.checkForUpdates();
+	//utils.checkForUpdates();
 	bot.shards.forEach(shard => {
 		let name = games[~~(Math.random() * games.length)];
 		shard.editStatus(null, {name});

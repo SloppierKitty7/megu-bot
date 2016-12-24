@@ -52,6 +52,7 @@ class Command {
 		this.cooldown = cmd.cooldown || 0;
 		this.hidden = !!cmd.hidden;
 		this.ownerOnly = !!cmd.ownerOnly;
+		this.modOnly = !!cmd.modOnly;
 		this.guildOnly = !!cmd.guildOnly;
 		this.fallback = !!cmd.fallback;
 		this.requiredPermission = cmd.requiredPermission || null;
@@ -101,6 +102,10 @@ class Command {
 	execute(bot, msg, suffix, config, settingsManager, logger) {
 		if (this.ownerOnly === true && !config.adminIds.includes(msg.author.id)) // ownerOnly check
 			return msg.channel.createMessage('Only the owner of this bot can use that command.').then(sentMsg => {
+				setTimeout(() => { msg.delete(); sentMsg.delete(); }, 6000);
+			});
+		if (this.modOnly === true && !msg.channel.permissionsOf(msg.author.id).has('administrator')) // ownerOnly check
+			return msg.channel.createMessage('Only the Mods of this Server can use that command.').then(sentMsg => {
 				setTimeout(() => { msg.delete(); sentMsg.delete(); }, 6000);
 			});
 		if (this.guildOnly === true && msg.channel.guild === undefined) // guildOnly check

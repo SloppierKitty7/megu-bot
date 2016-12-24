@@ -20,18 +20,23 @@ module.exports = {
 		if (suffix == "") {
 			bot.createMessage(msg.channel.id, "Feedback has not been submitted" || 'feedback');
 		} else{
-			r.db('megu').table('feedback').insert([
+			r.db('megu').table('pickup').insert([
 			{
 			  message:[
-				{feedback: suffix, date: Date(),guild_name: msg.guild.name, guild_id: msg.guild.id, user_id: msg.member.id	}
+				{Approved: true, Line: suffix, by: msg.member.user.username	}
 			  ]
 			}
 			]).run(connection, function(err, result) {
 			if (err) throw err;
 			var log_id = "258216306136842240"
 				bot.createMessage(msg.channel.id, "Feedback has been submitted" || 'feedback');
-				bot.createMessage(log_id, "Feedback by ***" + msg.member.user.username + '***  in **' + msg.guild.name + '**' + "```" + suffix + '```'|| 'feedback');
+				//bot.createMessage(log_id, "Feedback by ***" + msg.member.user.username + '***  in **' + msg.guild.name + '**' + "```" + suffix + '```'|| 'feedback');
 			})
 			}
 		}
 };
+
+
+
+
+//{Approved: true, Line: suffix, by: msg.member.user.username	}
