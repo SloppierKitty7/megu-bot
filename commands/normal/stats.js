@@ -1,29 +1,20 @@
-var Nf = new Intl.NumberFormat('en-US'),
-	reload = require('require-reload'),
-	_Logger = reload('../utils/Logger.js'),
-	logger;
-
 var reload = require('require-reload'),
-	formatTime = reload('../utils/utils.js').formatTime,
-	version = reload('../package.json').version
-	
-module.exports = function(bot, config, games, utils) {
-	if (logger === undefined)
-		logger = new _Logger(config.logTimestamp);
-	//utils.checkForUpdates();
-	bot.shards.forEach(shard => {
-		let name = games[~~(Math.random() * games.length)];
-		shard.editStatus(null, {name});
-	});
-	(function() {
-		var c = 0;
-		var timeout = setInterval(function() {
-		//do thing
+	formatTime = reload('../../utils/utils.js').formatTime,
+	version = reload('../../package.json').version,
+	Nf = new Intl.NumberFormat('en-US');
+
+
+module.exports = {
+	desc: "stats for the bot",
+	usage: "",
+	hidden: false,
+	ownerOnly: false,
+	task(bot, msg, suffix) {
 		let totalCommandUsage = commandsProcessed + cleverbotTimesUsed;		
         let embed = {
             color: 9083663,
             author: {
-                name: 'Megu-bot Live Statistics'
+                name: 'Megu-bot Statistics'
             },
             fields: [
                 {
@@ -61,9 +52,6 @@ module.exports = function(bot, config, games, utils) {
 				}
             ]
         }
-			bot.editMessage('215075455978569729', '264028864005668864',{embed: embed});	
-		c++;
-		}, 10000);
-	})();
-	logger.logWithHeader('READY', 'bgGreen', 'black', `S:${Nf.format(bot.guilds.size)} U:${Nf.format(bot.users.size)} AVG:${Nf.format((bot.users.size / bot.guilds.size).toFixed(2))}`);
-}
+			bot.createMessage(msg.channel.id,{embed: embed});	
+    }
+};

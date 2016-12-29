@@ -1,9 +1,9 @@
 {
   "name": "miraibot",
-  "version": "2.0.3",
+  "version": "2.0.6",
   "description": "An easy to use bot framework",
   "author": "brussell98",
-  "main": "Mirai.js",
+  "main": "megu.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/brussell98/Mirai"
@@ -15,7 +15,7 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "start": "node Mirai.js",
+    "start": "node megu.js",
     "docs": "node_modules/.bin/jsdoc README.md --configure .jsdoc.json --verbose"
   },
   "license": "MIT",
@@ -25,6 +25,7 @@
     "entities": "^1.1.1",
     "eris": "abalabahaha/eris#dev",
     "images": "^3.0.0",
+    "moment": "^2.17.1",
     "nodesu": "^0.5.0",
     "request": "^2.79.0",
     "require-reload": "^0.2.2",
