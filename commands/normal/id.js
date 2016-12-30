@@ -2,6 +2,7 @@ module.exports = {
 	desc: "Get a users id",
 	usage: "<@user>",
 	hidden: false,
+	guildOnly: true,
 	ownerOnly: false,
 	task(bot, msg, suffix) {	
 		if (msg.mentions == "") {

@@ -2,6 +2,7 @@ module.exports = {
 	desc: "Shows a users discord avatar",
 	usage: "<@user> Or leave blank for your avatarURL",
 	hidden: false,
+	guildOnly: true,
 	ownerOnly: false,
 	task(bot, msg, suffix) {	
 		if (msg.mentions == "") {
