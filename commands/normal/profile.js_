@@ -1,0 +1,99 @@
+var r = require('rethinkdb');
+
+var connection = null;
+r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
+    if (err) throw err;
+    connection = conn;
+});
+
+
+module.exports = {
+	desc: "Shows a users discord avatar",
+	usage: "<@user> Or leave blank for your avatarURL",
+	hidden: false,
+	guildOnly: true,
+	ownerOnly: true,
+	task(bot, msg, suffix) {	
+		if (msg.mentions == "") {
+			r.db('megu').table('user').filter({user_id: msg.member.id}).run(connection, function(err, cursor) {
+				if (err) throw err;
+				cursor.toArray(function(err, result) {
+				if (err) throw err;
+
+			let embed = {
+			color: 12391760,
+            author: {
+                name: msg.member.user.username,
+                icon_url: msg.member.user.avatarURL
+            },
+            thumbnail: {
+                url: msg.member.user.avatarURL
+            },
+            fields: [{
+					name: `Leval`,
+                    value: `0`,
+					inline: true
+				},{
+					name: `Xp`,
+                    value: `${result[0].Xp}`,
+					inline: true
+				},{
+					name: `Rep`,
+                    value: `0`,
+					inline: true
+				},{
+					name: `Position`,
+                    value: `0`,
+					inline: true
+				}
+            ]
+        }
+			bot.createMessage(msg.channel.id,{embed: embed});		
+				});
+			});
+		} else{
+			r.db('megu').table('user').filter({user_id: msg.mentions[0].id}).run(connection, function(err, cursor) {
+				if (err) throw err;
+				cursor.toArray(function(err, result) {
+				if (err) throw err;
+				var ran = JSON.stringify(result);
+				obj = JSON.parse(ran);
+				if (obj.length == 0){
+					bot.createMessage(msg.channel.id, 'User not found in database');	
+				} else {
+					
+			let embed = {
+				color: 12391760,
+				author: {
+					name: msg.mentions[0].username,
+					icon_url: msg.mentions[0].avatarURL
+				},
+				thumbnail: {
+					url: msg.mentions[0].avatarURL
+				},
+				fields: [{
+						name: `Leval`,
+						value: `0`,
+						inline: true
+					},{
+						name: `Xp`,
+						value: `${result[0].Xp}`,
+						inline: true
+					},{
+						name: `Rep`,
+						value: `0`,
+						inline: true
+					},{
+						name: `Position`,
+						value: `0`,
+						inline: true
+					}
+				]
+			}
+			bot.createMessage(msg.channel.id,{embed: embed});	
+				}
+			})
+		})
+	}
+	}
+};

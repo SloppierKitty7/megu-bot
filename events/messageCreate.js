@@ -1,5 +1,6 @@
 var reload		= require('require-reload')(require),
-	cleverbot	= reload('../special/cleverbot.js');
+	cleverbot	= reload('../special/cleverbot.js'),
+	level	= reload('../special/level.js');
 
 module.exports = {
 	handler(bot, msg, CommandManagers, config, settingsManager) {
@@ -13,6 +14,8 @@ module.exports = {
 
 		if (config.cleverbot && msg.channel.guild === undefined || (msg.mentions.length !== 0 && msg.content.search(new RegExp(`^<@!?${bot.user.id}>`)) === 0))
 			cleverbot(bot, msg, config, settingsManager);
+		//else if (msg.content === msg.content)
+				//level(bot, msg, config, settingsManager);
 	},
 	reloadCleverbot(bot, channelId) {
 		try {

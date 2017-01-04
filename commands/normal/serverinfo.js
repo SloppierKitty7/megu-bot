@@ -1,5 +1,5 @@
 module.exports = {
-	desc: "Get information about a user",
+	desc: "Get information on the server",
 	usage: "<@user>",
 	hidden: false,
 	guildOnly: true,

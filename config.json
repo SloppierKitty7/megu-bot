@@ -24,5 +24,6 @@
 	"cycleGames": true,
 	"bannedGuildIds": [],
 	"osuapi": "",
+	"steam": "",
 	"whitelistedGuildIds": []
 }

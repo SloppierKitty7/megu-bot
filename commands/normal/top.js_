@@ -1,0 +1,60 @@
+var r = require('rethinkdb');
+
+var connection = null;
+r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
+    if (err) throw err;
+    connection = conn;
+});
+
+
+
+module.exports = {
+	desc: "Get information about the channel",
+	usage: "",
+	hidden: false,
+	guildOnly: true,
+	ownerOnly: true,
+	task(bot, msg, suffix) {
+		r.db('megu').table('user').orderBy('ep').limit(5).run(connection, function(err, cursor) {
+				if (err) throw err;
+				cursor.toArray(function(err, result) {
+				if (err) throw err;
+				
+				
+				console.log(JSON.stringify(result));
+let embed = {
+			color: 12391760,
+            author: {
+                name: 'Top 5',
+                icon_url: msg.guild.iconURL
+            },
+            fields: [{
+					name: `#1`,
+                    value: `${result[0].id}`
+					
+				},{
+					name: `#2`,
+                    value: `${result[1].id}`
+					
+				},{
+					name: `#3`,
+                    value: `${result[2].id}`
+					
+				},{
+					name: `#4`,
+                    value: `d`
+					
+					
+				},{
+					name: `#5`,
+                    value: `d`
+				
+				}
+            ]
+        }
+			bot.createMessage(msg.channel.id,{embed: embed});	
+
+				})
+		})
+	}
+};
