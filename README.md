@@ -5,6 +5,7 @@ Is an open source utility bot for discord
 
 - Nodejs 6
 - Rethinkdb
+- imagemagick
 
 # Contributing
 
