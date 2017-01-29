@@ -4,7 +4,6 @@ Is an open source utility bot for discord
 # Requirements
 
 - Nodejs 6
-- Rethinkdb
 - imagemagick
 
 # Contributing
